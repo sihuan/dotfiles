@@ -59,6 +59,10 @@ simg(){
     scrot $@ -e 'curl -F \"name=@$f\" https://img.vim-cn.com/'
 }
 
+ttm(){
+    curl -F "file=@$1" https://ttm.sh/
+}
+
 alias pvim="curl -F 'vimcn=<-' https://cfp.vim-cn.com/"
 
 
