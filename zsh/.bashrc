@@ -5,6 +5,9 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+alias please='sudo'
+alias th123c='LANG=zh_CN.UTF-8 prime-run wine ~/Touhou/th123c/th123_beta.exe'
+
 # alias ls='ls --color=auto'
 alias ls='exa'
 
@@ -23,6 +26,18 @@ alias :q="exit"
 alias :w="sync"
 alias :x="sync && exit"
 alias :wq="sync && exit"
+
+alias linuxqq="rm -rf $HOME/.config/tencent-qq/1318000868/ && qq &"
+alias adb3="adb disconnect && adb connect 192.168.0.102:5555 && scrcpy"
+alias adbp="adb disconnect && adb connect 192.168.0.101:5555 && scrcpy"
+
+# pacman aliases and functions
+function Syu(){
+    sudo pacsync && sudo powerpill -Suw $@ && sudo pacman -Su $@ && sync
+    sudo pacman -Fy && sync
+    pacman -Qtdq | ifne sudo pacman -Rcs -
+    sync
+}
 
 alias Rcs="sudo pacman -Rcs"
 alias Ss="pacman -Ss"
@@ -47,6 +62,41 @@ alias Ssa="pikaur -Ssa"
 alias Sas="pikaur -Ssa"
 alias Sia="pikaur -Sai"
 alias Sai="pikaur -Sai"
+
+function Ga() {
+    [ -z "$1" ] && echo "usage: Ga <aur package name>: get AUR package PKGBUILD" && return 1
+    TMPDIR=$(mktemp -d)
+    git clone aur@aur.archlinux.org:"$1".git "$TMPDIR"
+    rm -rf "$TMPDIR"/.git
+    mkdir -p "$1"
+    cp -r -i "$TMPDIR"/* "$1"/
+    rm -rf "$TMPDIR"
+}
+
+function G() {
+    git clone https://git.archlinux.org/svntogit/$1.git/ -b packages/$3 --single-branch $3
+    mv "$3"/trunk/* "$3"
+    rm -rf "$3"/{repos,trunk,.git}
+}
+
+function Gw() {
+    [ -z "$1" ] && echo "usage: Gw <package name> [directory (default to pwd)]: get package file *.pkg.tar.xz from pacman cache" && return 1
+    sudo pacman -Sw "$1" && cp /var/cache/pacman/pkg/$1*.pkg.tar.xz ${2:-.}
+}
+
+function Ge() {
+    [ -z "$@" ] && echo "usage: $0 <core/extra package name>: get core/extra package PKGBUILD" && return 1
+    for i in $@; do
+    	G packages core/extra $i
+    done
+}
+
+function Gc() {
+    [ -z "$@" ] && echo "usage: $0 <community package name>: get community package PKGBUILD" && return 1
+    for i in $@; do
+    	G community community $i
+    done
+}
 
 alias rankpacman='sed "s/^#//" /etc/pacman.d/mirrorlist.pacnew | rankmirrors -n 10 - | sudo tee /etc/pacman.d/mirrorlist'
 alias urldecode='python2 -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
@@ -107,6 +157,10 @@ PROMPT_COMMAND=_prompt_command
 
 EDITOR="vim"
 export EDITOR
+GOPATH="$HOME/Project/go"
+export GOPATH
+export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$HOME/.local/bin
 
 function ranger-cd {
     tempfile="$(mktemp)"
