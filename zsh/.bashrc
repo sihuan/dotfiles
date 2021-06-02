@@ -2,41 +2,48 @@
 # ~/.bashrc
 #
 
+export PATH=$PATH:`go env GOPATH`/bin:~/.local/bin:`yarn global bin`
+export LIBVA_DRIVER_NAME=i965
+export PUB_HOSTED_URL=https://pub.flutter-io.cn
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 alias please='sudo'
 alias th123c='LANG=zh_CN.UTF-8 prime-run wine ~/Touhou/th123c/th123_beta.exe'
 
-# alias ls='ls --color=auto'
-alias ls='exa'
+#alias ls='ls --color=auto'
+alias ls='exa -gb'
 
-alias ll='ls -l'
-alias la='ls -la'
-alias lh='ls -lh'
+alias lsd='exa -gb --icons'
+alias ll='lsd -l'
+alias la='lsd -laa'
+alias lh='lsd -lh'
+alias lah='lsd -lah'
+alias grep='grep --color'
+alias k="kde-open5"
+alias x="xdg-open"
 
 alias start="sudo systemctl start"
 alias stop="sudo systemctl stop"
 alias restart="sudo systemctl restart"
 alias status="systemctl status"
+alias reload="sudo systemctl reload"
 
 alias .="source"
-alias cp="cp -i --reflink=auto"
+alias cp="cp -i --reflink=auto --sparse=auto"
 alias :q="exit"
 alias :w="sync"
 alias :x="sync && exit"
 alias :wq="sync && exit"
 
-alias linuxqq="rm -rf $HOME/.config/tencent-qq/1318000868/ && qq &"
-alias adb3="adb disconnect && adb connect 192.168.0.102:5555 && scrcpy"
-alias adbp="adb disconnect && adb connect 192.168.0.101:5555 && scrcpy"
-
 # pacman aliases and functions
 function Syu(){
-    sudo pacsync && sudo powerpill -Suw $@ && sudo pacman -Su $@ && sync
-    sudo pacman -Fy && sync
-    pacman -Qtdq | ifne sudo pacman -Rcs -
-    sync
+    sudo pacsync pacman -Sy && sudo pacman -Su $@  && sync
+    pacman -Qtdq | ifne sudo pacman -Rcs - && sync
+    sudo pacsync pacman -Fy && sync
+    pacdiff -o
 }
 
 alias Rcs="sudo pacman -Rcs"
@@ -55,13 +62,14 @@ alias U="sudo pacman -U"
 alias F="pacman -F"
 alias Fo="pacman -F"
 alias Fs="pacman -F"
+alias Fx="pacman -Fx"
 alias Fl="pacman -Fl"
 alias Fy="sudo pacman -Fy"
 alias Sy="sudo pacman -Sy"
-alias Ssa="pikaur -Ssa"
-alias Sas="pikaur -Ssa"
-alias Sia="pikaur -Sai"
-alias Sai="pikaur -Sai"
+alias Ssa="paru -Ssa"
+alias Sas="paru -Ssa"
+alias Sia="paru -Sia"
+alias Sai="paru -Sia"
 
 function Ga() {
     [ -z "$1" ] && echo "usage: Ga <aur package name>: get AUR package PKGBUILD" && return 1
@@ -81,7 +89,7 @@ function G() {
 
 function Gw() {
     [ -z "$1" ] && echo "usage: Gw <package name> [directory (default to pwd)]: get package file *.pkg.tar.xz from pacman cache" && return 1
-    sudo pacman -Sw "$1" && cp /var/cache/pacman/pkg/$1*.pkg.tar.xz ${2:-.}
+    sudo pacman -Sw "$1" && cp /var/cache/pacman/pkg/$1*.pkg.tar.* ${2:-.}
 }
 
 function Ge() {
@@ -99,8 +107,13 @@ function Gc() {
 }
 
 alias rankpacman='sed "s/^#//" /etc/pacman.d/mirrorlist.pacnew | rankmirrors -n 10 - | sudo tee /etc/pacman.d/mirrorlist'
-alias urldecode='python2 -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
-alias urlencode='python2 -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
+
+alias limit-run='/usr/bin/time systemd-run --user --pty --same-dir --wait --collect --slice=limit-run.slice '
+alias limit-cpu='/usr/bin/time systemd-run --user --pty --same-dir --wait --collect --slice=limit-cpu.slice '
+alias limit-mem='/usr/bin/time systemd-run --user --pty --same-dir --wait --collect --slice=limit-mem.slice '
+
+alias urldecode='python3 -c "import sys, urllib.parse as up; print(up.unquote(sys.argv[1]))"'
+alias urlencode='python3 -c "import sys, urllib.parse as up; print(up.quote(sys.argv[1]))"'
 imgvim(){
     curl -F "name=@$1" https://img.vim-cn.com/
 }
@@ -121,13 +134,34 @@ alias Ci="clipboard -i"
 alias Co="clipboard -o"
 alias Copng="Co -target image/png"
 
+Ct(){
+    t=$(mktemp /tmp/furigana-XXXX)
+    python -m furigana.furigana $(Co) | sed 's@<ruby><rb>@ :ruby:`@g;s@</rb><rt>@|@g;s@</rt></ruby>@` @g' | sponge $t
+    cat $t | tee /dev/tty | perl -pe 'chomp if eof' | Ci
+}
+
 fs() {
   curl -s -F "c=@${1:--}" "https://fars.ee/?u=1" | tee /dev/tty | perl -p -e 'chomp if eof' | Ci
 }
 
-# custom
 alias setproxy="export all_proxy=socks5://127.0.0.1:1088"
 
+dsf(){
+    # depends on diff-so-fancy
+    git diff --color=always $@ | diff-so-fancy | less
+}
+
+man() {
+	env \
+		LESS_TERMCAP_mb=$(printf "\e[1;37m") \
+		LESS_TERMCAP_md=$(printf "\e[1;37m") \
+		LESS_TERMCAP_me=$(printf "\e[0m") \
+		LESS_TERMCAP_se=$(printf "\e[0m") \
+		LESS_TERMCAP_so=$(printf "\e[1;47;30m") \
+		LESS_TERMCAP_ue=$(printf "\e[0m") \
+		LESS_TERMCAP_us=$(printf "\e[0;36m") \
+			man "$@"
+}
 
 function _git_prompt() {
     local git_status="`git status -unormal 2>&1`"
@@ -157,10 +191,9 @@ PROMPT_COMMAND=_prompt_command
 
 EDITOR="vim"
 export EDITOR
-GOPATH="$HOME/Project/go"
-export GOPATH
-export PATH=$PATH:$GOPATH/bin
-export PATH=$PATH:$HOME/.local/bin
+
+# S_COLORS for sysstat
+export S_COLORS=auto
 
 function ranger-cd {
     tempfile="$(mktemp)"

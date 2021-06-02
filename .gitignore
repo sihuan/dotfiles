@@ -1,2 +1,5 @@
-ssh/.ssh/aur
-ssh/.ssh/id_rsa
+*~
+ssh/.ssh/*
+!ssh/.ssh/ssh_config
+!ssh/.ssh/config
+!ssh/.ssh/*.config

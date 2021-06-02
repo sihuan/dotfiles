@@ -1,0 +1,9 @@
+#! /bin/bash
+
+maim -s > /tmp/waitocr.png && \
+cd ~/project/py/maim4ocr && \
+a=`python -c 'import ocr; ocr.ocrPng("/tmp/waitocr.png")'` && \
+echo $a &&\
+rm /tmp/waitocr.png && \
+echo $a | xclip -selection c && \
+kdialog --passivepopup $a 3

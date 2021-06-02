@@ -1,6 +1,6 @@
 [Groups/0]
 # Group Name
-Name=Default
+Name="分组 1"
 # Layout
 Default Layout=us
 # Default Input Method
@@ -14,13 +14,13 @@ Layout=
 
 [Groups/0/Items/1]
 # Name
-Name=pinyin
+Name=shuangpin
 # Layout
 Layout=
 
 [Groups/0/Items/2]
 # Name
-Name=shuangpin
+Name=pinyin
 # Layout
 Layout=
 
@@ -31,5 +31,5 @@ Name=mozc
 Layout=
 
 [GroupOrder]
-0=Default
+0="分组 1"
 

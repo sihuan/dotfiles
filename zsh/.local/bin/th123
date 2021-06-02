@@ -1,0 +1,4 @@
+#!/bin/sh
+cd ~/touhou/th123
+mkdir -p .proton
+LANG=ja_JP.UTF-8 STEAM_COMPAT_DATA_PATH=~/touhou/th123/.proton/ ~/.steam/steam/steamapps/common/Proton\ 5.13/proton run ./th123.exe
