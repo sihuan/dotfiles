@@ -2,16 +2,11 @@
 # ~/.bashrc
 #
 
-export PATH=$PATH:`go env GOPATH`/bin:~/.local/bin:`yarn global bin`
-export LIBVA_DRIVER_NAME=i965
-export PUB_HOSTED_URL=https://pub.flutter-io.cn
-export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 alias please='sudo'
-alias th123c='LANG=zh_CN.UTF-8 prime-run wine ~/Touhou/th123c/th123_beta.exe'
 
 #alias ls='ls --color=auto'
 alias ls='exa -gb'
@@ -144,7 +139,6 @@ fs() {
   curl -s -F "c=@${1:--}" "https://fars.ee/?u=1" | tee /dev/tty | perl -p -e 'chomp if eof' | Ci
 }
 
-alias setproxy="export all_proxy=socks5://127.0.0.1:1088"
 
 dsf(){
     # depends on diff-so-fancy
